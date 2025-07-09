@@ -24,9 +24,13 @@ const Hero = () => {
           <div className="mb-6 md:mb-8">
             <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden shadow-2xl border-4 border-white">
               <img 
-                src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop&crop=face" 
+                src="https://your-s3-bucket-name.s3.amazonaws.com/profile/kamal-raj-profile.jpg" 
                 alt="Kamal Raj - DevOps & SRE Engineer" 
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to default image if S3 image fails to load
+                  e.currentTarget.src = "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop&crop=face";
+                }}
               />
             </div>
           </div>

@@ -90,6 +90,11 @@ Update the following files with your information:
    - Update email, phone, and location
    - Modify contact form submission logic
 
+5. **Profile Images**:
+   - Upload your profile photos to S3 bucket
+   - Run the upload script: `./scripts/upload-profile-images.sh`
+   - Replace sample images with your actual photos
+
 ### Styling
 
 The project uses Tailwind CSS for styling. Key customization areas:
