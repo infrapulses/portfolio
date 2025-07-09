@@ -58,7 +58,7 @@ Before starting, ensure you have:
 
 3. **Clone and Prepare Project**
    ```bash
-   git clone https://github.com/Kamal-Raj123/portfolio-website.git
+   git clone https://github.com/infrapulses/portfolio-website.git
    cd portfolio-website
    npm install
    ```
