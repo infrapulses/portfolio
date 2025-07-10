@@ -10,7 +10,7 @@ const Portfolio = () => {
       title: 'VisionOps',
       category: 'Web App',
       description: 'Unified observability + security platform for SMBs with Grafana, Prometheus, and Wazuh. Deployed across hybrid Kubernetes clusters.',
-      image: 'https://images.pexels.com/photos/6476253/pexels-photo-6476253.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/visionops.jpg',
       technologies: ['Grafana', 'Prometheus', 'Wazuh', 'Kubernetes', 'Jenkins'],
       liveUrl: '#',
       githubUrl: 'https://github.com/infrapulses/Vision-ops_project',
@@ -21,7 +21,7 @@ const Portfolio = () => {
       title: 'FutureOps',
       category: 'Prediction Power',
       description: 'A cutting-edge predictive infrastructure platform that combines AI, observability, and automation. FutureOps empowers teams with custom forecasting, real-time alerts, and adaptive dashboards — designed to grow with your infra.',
-      image: 'https://images.pexels.com/photos/373543/pexels-photo-373543.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/futureops.jpg',
       technologies: ['Python', 'Grafana', 'Prometheus', 'Custom ML Models', 'Ansible', 'FastAPI'],
       liveUrl: '#',
       githubUrl: 'https://github.com/infrapulses/Futureops',
@@ -32,7 +32,7 @@ const Portfolio = () => {
       title: 'SIEM + Compliance Stackp',
       category: 'Security',
       description: 'Deployed and customized Wazuh for real-time SIEM, log collection, and alerting. Added compliance report generation via custom scripting.',
-      image: 'https://images.pexels.com/photos/669612/pexels-photo-669612.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/siem-stack.jpg',
       technologies: ['Wazuh', 'Linux', 'Logstash', 'Shell Scripting'],
       liveUrl: '#',
       githubUrl: '#',
@@ -43,7 +43,7 @@ const Portfolio = () => {
       title: 'Kubernetes Infra Automation',
       category: 'CloudOps',
       description: 'Built end-to-end Kubernetes infrastructure with Terraform, Docker, and GitHub Actions for CI/CD and app deployment.',
-      image: 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/kubernetes-automation.jpg',
       technologies: ['Terraform', 'Kubernetes', 'GitHub Actions', 'Docker'],
       liveUrl: '#',
       githubUrl: '#',
@@ -54,7 +54,7 @@ const Portfolio = () => {
       title: 'AI-Driven Anomaly Detection',
       category: 'AI',
       description: 'Integrated ML models in Prometheus alert pipeline to detect anomalies in system performance. Deployed without GPU on-prem.',
-      image: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/ai-anomaly-detection.jpg',
       technologies: ['Python', 'Scikit-learn', 'Prometheus', 'FastAPI'],
       liveUrl: '#',
       githubUrl: '#',
@@ -65,7 +65,7 @@ const Portfolio = () => {
       title: 'Network Storage Monitoring',
       category: 'Monitoring',
       description: 'Monitored SAN, NAS, and switches using SNMP exporters and Entuity. Built Grafana dashboards for performance insight.',
-      image: 'https://images.pexels.com/photos/325229/pexels-photo-325229.jpeg?auto=compress&cs=tinysrgb&w=800',
+      image: '/images/portfolio/network-monitoring.jpg',
       technologies: ['Grafana', 'SNMP Exporter', 'Cisco SAN', 'Entuity'],
       liveUrl: '#',
       githubUrl: '#',
@@ -115,6 +115,19 @@ const Portfolio = () => {
                   src={project.image} 
                   alt={project.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    // Fallback to Pexels image if local image fails
+                    const fallbackImages = {
+                      'visionops.jpg': 'https://images.pexels.com/photos/6476253/pexels-photo-6476253.jpeg?auto=compress&cs=tinysrgb&w=800',
+                      'futureops.jpg': 'https://images.pexels.com/photos/373543/pexels-photo-373543.jpeg?auto=compress&cs=tinysrgb&w=800',
+                      'siem-stack.jpg': 'https://images.pexels.com/photos/669612/pexels-photo-669612.jpeg?auto=compress&cs=tinysrgb&w=800',
+                      'kubernetes-automation.jpg': 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=800',
+                      'ai-anomaly-detection.jpg': 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=800',
+                      'network-monitoring.jpg': 'https://images.pexels.com/photos/325229/pexels-photo-325229.jpeg?auto=compress&cs=tinysrgb&w=800'
+                    };
+                    const filename = project.image.split('/').pop();
+                    e.currentTarget.src = fallbackImages[filename] || 'https://images.pexels.com/photos/1181676/pexels-photo-1181676.jpeg?auto=compress&cs=tinysrgb&w=800';
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute top-4 right-4 bg-white/90 px-3 py-1 rounded-full text-sm font-medium text-gray-700">
