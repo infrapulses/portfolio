@@ -136,15 +136,13 @@ resource "aws_acm_certificate" "website" {
 
 # Certificate validation
 resource "aws_route53_record" "cert_validation" {
-  count = var.ssl_certificate_arn == "" ? 1 : 0
-  
-  for_each = {
+  for_each = var.ssl_certificate_arn == "" ? {
     for dvo in aws_acm_certificate.website[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
     }
-  }
+  } : {}
 
   allow_overwrite = true
   name            = each.value.name
@@ -159,6 +157,8 @@ resource "aws_acm_certificate_validation" "website" {
   
   certificate_arn         = aws_acm_certificate.website[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+  
+  depends_on = [aws_route53_record.cert_validation]
 }
 
 # Data source for existing certificate
