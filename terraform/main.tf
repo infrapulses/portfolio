@@ -151,6 +151,8 @@ resource "aws_route53_zone" "main" {
 
 # SSL Certificate
 resource "aws_acm_certificate" "website" {
+  count = var.ssl_certificate_arn == "" ? 1 : 0
+  
   domain_name               = var.domain_name
   subject_alternative_names = ["www.${var.domain_name}", "api.${var.domain_name}"]
   validation_method         = "DNS"
@@ -167,8 +169,10 @@ resource "aws_acm_certificate" "website" {
 
 # Certificate validation
 resource "aws_route53_record" "cert_validation" {
+  count = var.ssl_certificate_arn == "" ? 1 : 0
+  
   for_each = {
-    for dvo in aws_acm_certificate.website.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.website[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -184,8 +188,21 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "website" {
-  certificate_arn         = aws_acm_certificate.website.arn
+  count = var.ssl_certificate_arn == "" ? 1 : 0
+  
+  certificate_arn         = aws_acm_certificate.website[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+}
+
+# Data source for existing certificate
+data "aws_acm_certificate" "existing" {
+  count = var.ssl_certificate_arn != "" ? 1 : 0
+  arn   = var.ssl_certificate_arn
+}
+
+# Local value to determine which certificate to use
+locals {
+  certificate_arn = var.ssl_certificate_arn != "" ? var.ssl_certificate_arn : aws_acm_certificate_validation.website[0].certificate_arn
 }
 
 # CloudFront Distribution
@@ -253,7 +270,7 @@ resource "aws_cloudfront_distribution" "website" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = aws_acm_certificate_validation.website.certificate_arn
+    acm_certificate_arn      = local.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
@@ -499,7 +516,7 @@ resource "aws_lb_listener" "ai_model" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = aws_acm_certificate_validation.website.certificate_arn
+  certificate_arn   = local.certificate_arn
 
   default_action {
     type             = "forward"

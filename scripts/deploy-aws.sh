@@ -98,6 +98,10 @@ validate_inputs() {
         print_warning "PUBLIC_KEY_PATH not set, using default: $PUBLIC_KEY_PATH"
     fi
     
+    if [ -n "$SSL_CERTIFICATE_ARN" ]; then
+        print_status "Using existing SSL certificate: $SSL_CERTIFICATE_ARN"
+    fi
+    
     if [ ! -f "$PUBLIC_KEY_PATH" ]; then
         print_error "Public key file not found: $PUBLIC_KEY_PATH"
         echo "Please generate SSH keys or specify correct path."
@@ -155,6 +159,7 @@ aws_region = "$AWS_REGION"
 instance_type = "$INSTANCE_TYPE"
 public_key = "$PUBLIC_KEY"
 environment = "production"
+$([ -n "$SSL_CERTIFICATE_ARN" ] && echo "ssl_certificate_arn = \"$SSL_CERTIFICATE_ARN\"")
 EOF
     
     # Plan deployment

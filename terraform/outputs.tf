@@ -50,7 +50,12 @@ output "route53_name_servers" {
 
 output "ssl_certificate_arn" {
   description = "SSL certificate ARN"
-  value       = aws_acm_certificate.website.arn
+  value       = local.certificate_arn
+}
+
+output "ssl_certificate_source" {
+  description = "Source of SSL certificate (existing or created)"
+  value       = var.ssl_certificate_arn != "" ? "existing" : "created"
 }
 
 output "ec2_instance_id" {

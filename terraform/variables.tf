@@ -82,6 +82,11 @@ variable "ssl_certificate_arn" {
   description = "ARN of existing SSL certificate (optional)"
   type        = string
   default     = ""
+  
+  validation {
+    condition = var.ssl_certificate_arn == "" || can(regex("^arn:aws:acm:[a-z0-9-]+:[0-9]+:certificate/[a-f0-9-]+$", var.ssl_certificate_arn))
+    error_message = "SSL certificate ARN must be a valid ACM certificate ARN format."
+  }
 }
 
 variable "tags" {
