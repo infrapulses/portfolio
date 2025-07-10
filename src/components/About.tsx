@@ -72,24 +72,6 @@ const About = () => {
               <span className="text-lg font-semibold text-gray-900">Bridging tradition with tech evolution</span>
             </div>
           </div>
-
-          {/* Stats */}
-          <div className="order-1 lg:order-2">
-            {/* Profile Image for About Section */}
-            <div className="mb-8 lg:mb-0 flex justify-center lg:justify-end">
-              <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shadow-xl border-4 border-white">
-                <img 
-                  src="/images/profile/about-profile.jpg" 
-                  alt="Kamal Raj - About Photo" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to default image if S3 image fails to load
-                    e.currentTarget.src = "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=600&h=600&fit=crop";
-                  }}
-                />
-              </div>
-            </div>
-            
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-6">
             {stats.map((stat, index) => (
