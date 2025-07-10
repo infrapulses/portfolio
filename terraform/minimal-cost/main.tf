@@ -86,7 +86,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "website" {
   bucket = aws_s3_bucket.website.id
 
   rule {
-    id     = "cost_optimization"
+    id     = "lifecycle_rule"
     status = "Enabled"
 
     filter {
@@ -121,7 +121,7 @@ resource "aws_route53_zone" "main" {
 
 # SSL Certificate (only create if not using existing)
 resource "aws_acm_certificate" "website" {
-  count = var.ssl_certificate_arn == "" ? 1 : 0
+  count = var.ssl_certificate_arn == "" && !var.use_existing_certificate ? 1 : 0
   
   domain_name               = var.domain_name
   subject_alternative_names = ["www.${var.domain_name}"]
@@ -140,7 +140,7 @@ resource "aws_acm_certificate" "website" {
 
 # Certificate validation (only if creating new certificate)
 resource "aws_route53_record" "cert_validation" {
-  for_each = var.ssl_certificate_arn == "" ? {
+  for_each = var.ssl_certificate_arn == "" && !var.use_existing_certificate ? {
     for dvo in aws_acm_certificate.website[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
@@ -157,7 +157,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "website" {
-  count = var.ssl_certificate_arn == "" ? 1 : 0
+  count = var.ssl_certificate_arn == "" && !var.use_existing_certificate ? 1 : 0
   
   certificate_arn         = aws_acm_certificate.website[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
@@ -165,14 +165,12 @@ resource "aws_acm_certificate_validation" "website" {
   depends_on = [aws_route53_record.cert_validation]
 }
 
-# Data source for existing certificate (only if using existing)
-data "aws_acm_certificate" "existing" {
-  count  = var.ssl_certificate_arn != "" ? 1 : 0
-  domain = var.domain_name
-  
-  statuses = ["ISSUED"]
-  most_recent = true
-}
+# Note: We don't need a data source for existing certificates
+# when we have the ARN directly. The ARN is sufficient for
+# referencing the certificate in CloudFront and other services.
+# This avoids the "empty result" error when the certificate
+# domain doesn't exactly match the search criteria.
+
 
 # Local value to determine which certificate to use
 locals {

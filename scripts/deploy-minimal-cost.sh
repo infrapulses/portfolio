@@ -389,8 +389,10 @@ EOF
     # Add SSL certificate ARN if provided
     if [ -n "$SSL_CERTIFICATE_ARN" ]; then
         echo "ssl_certificate_arn = \"$SSL_CERTIFICATE_ARN\"" >> terraform.tfvars
+        echo "use_existing_certificate = true" >> terraform.tfvars
+    else
+        echo "use_existing_certificate = false" >> terraform.tfvars
     fi
-EOF
     
     # Plan deployment
     terraform plan -var-file="terraform.tfvars"
