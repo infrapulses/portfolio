@@ -41,6 +41,17 @@ variable "alert_email" {
   }
 }
 
+variable "ssl_certificate_arn" {
+  description = "ARN of existing SSL certificate (optional). Leave empty to create new certificate."
+  type        = string
+  default     = ""
+  
+  validation {
+    condition = var.ssl_certificate_arn == "" || can(regex("^arn:aws:acm:[a-z0-9-]+:[0-9]+:certificate/[a-f0-9-]+$", var.ssl_certificate_arn))
+    error_message = "SSL certificate ARN must be a valid ACM certificate ARN format or empty string."
+  }
+}
+
 variable "tags" {
   description = "Additional tags for resources"
   type        = map(string)
@@ -48,17 +59,6 @@ variable "tags" {
     Project    = "Portfolio"
     Owner      = "infrapulses"
     CostCenter = "minimal"
-  }
-}
-
-variable "ssl_certificate_arn" {
-  description = "ARN of existing SSL certificate (optional)"
-  type        = string
-  default     = ""
-  
-  validation {
-    condition = var.ssl_certificate_arn == "" || can(regex("^arn:aws:acm:[a-z0-9-]+:[0-9]+:certificate/[a-f0-9-]+$", var.ssl_certificate_arn))
-    error_message = "SSL certificate ARN must be a valid ACM certificate ARN format."
   }
 }
 

@@ -384,7 +384,12 @@ domain_name = "$DOMAIN_NAME"
 aws_region = "$AWS_REGION"
 alert_email = "$ALERT_EMAIL"
 environment = "production"
-$([ -n "$SSL_CERTIFICATE_ARN" ] && echo "ssl_certificate_arn = \"$SSL_CERTIFICATE_ARN\"")
+EOF
+
+    # Add SSL certificate ARN if provided
+    if [ -n "$SSL_CERTIFICATE_ARN" ]; then
+        echo "ssl_certificate_arn = \"$SSL_CERTIFICATE_ARN\"" >> terraform.tfvars
+    fi
 EOF
     
     # Plan deployment

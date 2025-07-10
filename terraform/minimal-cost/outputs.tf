@@ -47,7 +47,7 @@ output "estimated_monthly_cost" {
     s3_hosting      = "$1-2"
     cloudfront_cdn  = "$1-3"
     route53_dns     = "$0.50"
-    ssl_certificate = "Free"
+    ssl_certificate = var.ssl_certificate_arn != "" ? "Free (existing)" : "Free (ACM)"
     total_estimated = "$2-5"
     savings_vs_full = "$30-40 saved per month"
   }
@@ -65,7 +65,7 @@ output "deployment_info" {
     ]
     features_included = [
       "✅ Professional portfolio website",
-      "✅ SSL certificate (free)",
+      "✅ SSL certificate (${var.ssl_certificate_arn != "" ? "existing" : "new"})",
       "✅ Global CDN",
       "✅ Custom domain",
       "✅ Responsive design",
@@ -85,10 +85,22 @@ output "cost_optimization_features" {
   description = "Cost optimization features enabled"
   value = {
     s3_lifecycle_rules     = "Enabled - removes old versions after 30 days"
-    cloudfront_price_class = "PriceClass_100 - US, Canada, Europe only"
-    billing_alerts        = "Enabled - alerts when cost exceeds $10/month"
+    cloudfront_price_class = var.cloudfront_price_class
+    billing_alerts        = "Enabled - alerts when cost exceeds $${var.billing_alert_threshold}/month"
     intelligent_tiering    = var.enable_s3_intelligent_tiering ? "Enabled" : "Disabled"
     no_ec2_instances      = "No compute costs"
     no_load_balancer      = "No load balancer costs"
+    certificate_reuse     = var.ssl_certificate_arn != "" ? "Using existing certificate" : "New certificate created"
+  }
+}
+
+# Certificate information
+output "certificate_details" {
+  description = "SSL certificate details"
+  value = {
+    arn    = local.certificate_arn
+    source = var.ssl_certificate_arn != "" ? "existing" : "created"
+    domain = var.domain_name
+    sans   = ["www.${var.domain_name}"]
   }
 }

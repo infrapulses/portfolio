@@ -89,6 +89,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "website" {
     id     = "cost_optimization"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -115,7 +119,7 @@ resource "aws_route53_zone" "main" {
   }
 }
 
-# SSL Certificate
+# SSL Certificate (only create if not using existing)
 resource "aws_acm_certificate" "website" {
   count = var.ssl_certificate_arn == "" ? 1 : 0
   
@@ -134,7 +138,7 @@ resource "aws_acm_certificate" "website" {
   }
 }
 
-# Certificate validation
+# Certificate validation (only if creating new certificate)
 resource "aws_route53_record" "cert_validation" {
   for_each = var.ssl_certificate_arn == "" ? {
     for dvo in aws_acm_certificate.website[0].domain_validation_options : dvo.domain_name => {
@@ -161,15 +165,20 @@ resource "aws_acm_certificate_validation" "website" {
   depends_on = [aws_route53_record.cert_validation]
 }
 
-# Data source for existing certificate
+# Data source for existing certificate (only if using existing)
 data "aws_acm_certificate" "existing" {
-  count = var.ssl_certificate_arn != "" ? 1 : 0
-  arn   = var.ssl_certificate_arn
+  count  = var.ssl_certificate_arn != "" ? 1 : 0
+  domain = var.domain_name
+  
+  statuses = ["ISSUED"]
+  most_recent = true
 }
 
 # Local value to determine which certificate to use
 locals {
-  certificate_arn = var.ssl_certificate_arn != "" ? var.ssl_certificate_arn : aws_acm_certificate_validation.website[0].certificate_arn
+  certificate_arn = var.ssl_certificate_arn != "" ? var.ssl_certificate_arn : (
+    length(aws_acm_certificate_validation.website) > 0 ? aws_acm_certificate_validation.website[0].certificate_arn : ""
+  )
 }
 
 # CloudFront Distribution (Cost-optimized)
@@ -186,7 +195,7 @@ resource "aws_cloudfront_distribution" "website" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  price_class         = "PriceClass_100" # Use only US, Canada, Europe
+  price_class         = var.cloudfront_price_class
 
   aliases = [var.domain_name, "www.${var.domain_name}"]
 
@@ -259,6 +268,11 @@ resource "aws_cloudfront_distribution" "website" {
     Environment = var.environment
     CostCenter  = "minimal"
   }
+
+  depends_on = [
+    aws_acm_certificate_validation.website,
+    data.aws_acm_certificate.existing
+  ]
 }
 
 # Route 53 Records
@@ -295,7 +309,7 @@ resource "aws_cloudwatch_metric_alarm" "billing_alarm" {
   namespace           = "AWS/Billing"
   period              = "86400"
   statistic           = "Maximum"
-  threshold           = "10" # Alert if monthly cost exceeds $10
+  threshold           = var.billing_alert_threshold
   alarm_description   = "This metric monitors estimated charges"
   alarm_actions       = [aws_sns_topic.billing_alerts.arn]
 
@@ -319,7 +333,7 @@ resource "aws_sns_topic" "billing_alerts" {
   }
 }
 
-# SNS topic subscription (replace with your email)
+# SNS topic subscription
 resource "aws_sns_topic_subscription" "billing_alerts_email" {
   topic_arn = aws_sns_topic.billing_alerts.arn
   protocol  = "email"
