@@ -94,10 +94,6 @@ validate_inputs() {
     fi
     
     if [ -z "$AWS_REGION" ]; then
-        AWS_REGION="us-east-1"
-        print_warning "AWS_REGION not set, using default: $AWS_REGION"
-    fi
-    
     print_success "Input validation passed"
 }
 
@@ -506,6 +502,12 @@ print_deployment_summary() {
     echo -e "${BLUE}Website URL:${NC} https://$DOMAIN_NAME"
     echo -e "${BLUE}S3 Bucket:${NC} $S3_BUCKET"
     echo -e "${BLUE}CloudFront Distribution:${NC} $CLOUDFRONT_DIST_ID"
+    if [ -n "$SSL_CERTIFICATE_ARN" ]; then
+        echo -e "${BLUE}SSL Certificate:${NC} Using existing certificate"
+        echo -e "${BLUE}Certificate ARN:${NC} $SSL_CERTIFICATE_ARN"
+    else
+        echo -e "${BLUE}SSL Certificate:${NC} New certificate created"
+    fi
     echo ""
     echo -e "${YELLOW}📋 Next Steps:${NC}"
     echo "1. Update your GoDaddy DNS settings with these nameservers:"

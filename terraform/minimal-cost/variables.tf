@@ -56,7 +56,6 @@ variable "use_existing_certificate" {
   description = "Whether to use an existing certificate (true) or create a new one (false)"
   type        = bool
   default     = false
-  }
 }
 
 variable "tags" {
